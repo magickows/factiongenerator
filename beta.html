@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faction Generator</title>
+<style>
+  body { 
+    font-family: Georgia, 'Times New Roman', serif; 
+    padding: 20px; 
+    background-color: #f4ecd8; 
+    color: #000000;
+  }
+  .container { 
+    max-width: 650px; 
+    margin: auto; 
+    background-color: #fcf9f2; 
+    padding: 30px; 
+    border-radius: 4px; 
+    border: 1px solid #dcd1be;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.1); 
+  }
+  .button-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  button { 
+    padding: 15px; 
+    font-size: 18px; 
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: bold;
+    cursor: pointer; 
+    border-radius: 6px; 
+    transition: all 0.2s;
+  }
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  /* Primary Generate Button */
+  #generateBtn {
+    flex: 2;
+    background-color: #8a2525; 
+    color: #f4ecd8; 
+    border: 2px solid #5e1616; 
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+  }
+  #generateBtn:hover:not(:disabled) { 
+    background-color: #701c1c; 
+  }
+  
+  /* Secondary Copy Button */
+  #copyBtn {
+    flex: 1;
+    background-color: #e4dccc;
+    color: #5e1616;
+    border: 2px solid #cbbca1;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  #copyBtn:hover:not(:disabled) {
+    background-color: #d1c6b1;
+  }
+
+  .result-group { 
+    display: flex;
+    padding: 8px 12px; 
+    border-bottom: 1px solid #e0d8c3;
+    min-height: 24px; 
+  }
+  .result-group:nth-child(even) {
+    background-color: #e9eed5;
+  }
+  .category-name { 
+    font-weight: bold; 
+    color: #5e1616; 
+    width: 160px; 
+    flex-shrink: 0;
+  }
+  .category-value { 
+    font-size: 1.05em; 
+    color: #000000; 
+  }
+  .typing-cursor::after {
+    content: '▋';
+    animation: blink 1s step-start infinite;
+    font-size: 0.9em;
+    color: #5e1616;
+    margin-left: 4px;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+  .footer-text {
+    text-align: center;
+    font-size: 11px;
+    opacity: 0.3;
+    margin-top: 30px;
+    font-family: sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="button-group">
+    <button id="generateBtn">Generate Faction</button>
+    <button id="copyBtn">Copy Results</button>
+  </div>
+  <div id="results"></div>
+  <div class="footer-text">powered by kows 2026</div>
+</div>
+
+<script>
+  const factionData = {
+    "Type": ["Academy", "Religion", "Guild", "Gang", "Military", "Activists", "Council", "Institute", "Union", "Conclave", "Club", "Judiciary", "Family", "Exiles", "Syndicate", "Radicals", "Charity", "Raiders", "Refugees", "Office", "Business", "Envoy", "State", "Nomads", "Society", "Company", "Agency", "League", "Crew", "Team", "Chamber", "Industry", "Order", "Troupe", "Clan", "Cult"],
+    "Culture": ["Ruthless", "Open", "Ranked", "Secretive", "Curious", "Diligent", "Prejudice", "Caring", "Closed", "Obtuse", "Efficient", "Chaotic", "Abusive", "Cruel", "Disturbed", "Calm", "Angry", "Quiet", "Sinister", "Focused", "Driven", "Careless", "Precise", "Bold", "Zealous", "Daring", "Abstract", "Spiritual", "Joyous", "Hopeless", "Just", "Honour", "Regulated", "Freedom", "Uncanny", "Hive"],
+    "Aesthetic": ["Gothic", "Pompous", "Gilded", "Ragged", "Humble", "Dour", "Fearsome", "Official", "Combat", "Bright", "Grim", "Plain", "Sinister", "Painful", "Graceful", "Cold", "Dreamy", "Light", "Heavy", "Esoteric", "Messy", "Eclectic", "Dire", "Copied", "Elegant", "Pleasant", "Gentle", "Tired", "Selective", "Opulent", "Wretched", "Placid", "Fresh", "Testing", "Ordinary", "Colourful"],
+    "Theme": ["Combat", "Politics", "Faith", "Occult", "Prophecy", "Research", "Magic", "Plants", "Animals", "Messages", "Transport", "Makers", "Records", "Warding", "Secrets", "Media", "Art", "Cosmic", "Crime", "Monsters", "Hunting", "Crafting", "Spectacle", "Legal", "Service", "Upkeep", "Books", "Discovery", "Mapping", "Buildings", "Medicine", "Addiction", "Science", "Travel", "Trade", "Illusion"],
+    "Base": ["Cave", "Ship", "Caravan", "Fortress", "Temple", "Factory", "Office", "Manor", "Palace", "Tower", "District", "Castle", "Keep", "Shop", "Harbour", "Camp", "House", "Sewer", "Platform", "Island", "Prison", "Crypt", "Basement", "Hall", "Ruin", "Arena", "Titan", "Vault", "Village", "Shack", "Storage", "Bridge", "Pit", "Estate", "City", "None"],
+    "Roles": ["Archivist", "Labourer", "Fixer", "Artisan", "Manager", "Clerk", "Agent", "Spy", "Soldier", "Envoy", "Supplier", "Scout", "Driver", "Porter", "Examiner", "Teacher", "Analyst", "Designer", "Warden", "Priest", "Publicist", "Trader", "Guardian", "Support", "Inspector", "Historian", "Carer", "Healer", "Recruiter", "Lawyer", "Trickster", "Politician", "Strategist", "Fodder", "Speaker", "Leader"],
+    "Size": ["Tiny", "Small", "Moderate", "Large", "Big", "Colossal"],
+    "Repute": ["Hated", "Disliked", "Unsure", "Tolerated", "Liked", "Loved"],
+    "Wealth": ["Poor", "Little", "Modest", "Stable", "Affluent", "Rich"],
+    "Age": ["Weeks", "Months", "Years", "Decades", "Centuries", "Ancient"],
+    "Leaders": ["None", "One", "Few", "Dozen", "Dozens", "Countless"],
+    "Prospects": ["Dire", "Bad", "Troubled", "Fair", "Good", "Great"],
+    "Aim": ["Attack", "Learn", "Deceive", "Recruit", "Defend", "Transport", "Acquire", "Build", "Stabilise", "Recover", "Infiltrate", "Control", "Influence", "Hide", "Obscure", "Uncover", "Vindicate", "Inspect", "Explore", "Ascend", "Honour", "Worship", "Study", "Attend", "Oppress", "Publicise", "Advocate", "Fix", "Heal", "Harvest", "Distract", "Ruin", "Connect", "Sabotage", "Reclaim", "Suppress"],
+    "Obstacle": ["Culture", "Obscurity", "Beasts", "Monsters", "Building", "Security", "Terrain", "Debate", "Infighting", "Battle", "Sickness", "Isolation", "Crime", "Chaos", "Faith", "Scarcity", "Distrust", "Magic", "Authority", "Law", "Lies", "Repute", "Detection", "Distance", "Deficit", "Plenty", "Numbers", "Secrecy", "Trust", "Code", "Ignorance", "Prejudice", "Rivalry", "Trials", "Ritual", "Cosmic"],
+    "Motive": ["Greed", "Faith", "History", "Health", "Honour", "Curiosity", "Fear", "Repute", "Guilt", "Biological", "Revenge", "Madness", "Creative", "Hunger", "Inclusion", "Peace", "Security", "Stability", "Legacy", "Balance", "Hatred", "Despair", "Disgust", "Spite", "Justice", "Victory", "Ecstasy", "Poverty", "Hope", "Disparity", "Cynicism", "Sadistic", "Duty", "Tragedy", "Sadness", "Joy"],
+    "Relationship": ["Tenuous", "Suspicion", "Abusive", "Peaceful", "Resentful", "Formal", "Distant", "Rivalry", "Mutual", "Selfish", "Parasitic", "Tangled", "Cruel", "Dreamy", "Obscure", "Needed", "Symbiotic", "Sensible", "Tragic", "Storied", "Sickening", "Hateful", "Majestic", "Familial", "Fleeting", "Reliant", "Close", "Trusting", "Placid", "Contract", "Timid", "Secret", "Deceptive", "Chaotic", "Tactical", "Happy"],
+    "Past": ["Deceived", "Vilified", "Respected", "Hunted", "Loss", "Ruin", "Toil", "Advanced", "Riches", "Betrayals", "Infighting", "Heroism", "Boring", "Exile", "Retreat", "Horror", "Sacrifice", "Trickery", "Discovery", "Bloody", "Pacts", "Rejection", "Hostility", "Fear", "Abuse", "Authority", "Foiled", "Luxury", "Poverty", "Peace", "Crisis", "Research", "Relocated", "Questions", "Mystical", "Gritty"],
+    "Resource": ["Numbers", "Weapons", "Defences", "Wards", "Magic", "Supplies", "Materials", "Expertise", "Allies", "Fame", "Contacts", "Factories", "Property", "Land", "Transport", "Animals", "Loyalty", "Stockpiles", "Artefacts", "Authority", "Shops", "Secrets", "Safehouse", "Plants", "Relics", "History", "Territory", "Science", "Maps", "Port", "Intel", "Luxury", "Crafting", "Reach", "Info", "Will"],
+    "Vulnerability": ["Isolation", "Greed", "Pride", "Honour", "Combat", "Fear", "Faith", "Slow", "Desperate", "Poverty", "Hatred", "Rivalry", "Reliance", "Temper", "Principles", "Nostalgic", "History", "Ignorance", "Addiction", "Fickle", "Disorder", "Excitable", "Panic", "Unity", "Pacts", "Illness", "Unity", "Magic", "Novelty", "Threat", "Ambition", "Impulsive", "Protocol", "Restraint", "Sickness", "Cosmic"]
+  };
+
+  const generateBtn = document.getElementById('generateBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  async function generateRandomFaction() {
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = ''; 
+    generateBtn.disabled = true;
+    copyBtn.disabled = true;
+    copyBtn.textContent = 'Copy Results'; // Reset text just in case
+
+    for (const [category, options] of Object.entries(factionData)) {
+      const randomIndex = Math.floor(Math.random() * options.length);
+      const selectedOption = options[randomIndex];
+
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'result-group';
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'category-name';
+      
+      const valueSpan = document.createElement('span');
+      valueSpan.className = 'category-value';
+      
+      groupDiv.appendChild(nameSpan);
+      groupDiv.appendChild(valueSpan);
+      resultsDiv.appendChild(groupDiv);
+
+      nameSpan.classList.add('typing-cursor');
+
+      for (let i = 0; i < category.length; i++) {
+        nameSpan.textContent += category.charAt(i);
+        await sleep(15); 
+      }
+      
+      nameSpan.classList.remove('typing-cursor');
+      valueSpan.classList.add('typing-cursor');
+      
+      await sleep(30); 
+
+      for (let i = 0; i < selectedOption.length; i++) {
+        valueSpan.textContent += selectedOption.charAt(i);
+        await sleep(35); 
+      }
+
+      valueSpan.classList.remove('typing-cursor');
+      await sleep(40); 
+    }
+
+    generateBtn.disabled = false;
+    copyBtn.disabled = false;
+  }
+
+  // Handle the copy functionality
+  function copyResults() {
+    const resultsDiv = document.getElementById('results');
+    const rows = resultsDiv.querySelectorAll('.result-group');
+    let textToCopy = "Generated Faction:\n\n";
+
+    // Loop through each generated row and format it nicely
+    rows.forEach(row => {
+      const category = row.querySelector('.category-name').textContent;
+      const value = row.querySelector('.category-value').textContent;
+      textToCopy += `${category}: ${value}\n`;
+    });
+
+    // Write to clipboard and update button text briefly
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const originalText = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = originalText;
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+      alert('Failed to copy results.');
+    });
+  }
+
+  generateBtn.addEventListener('click', generateRandomFaction);
+  copyBtn.addEventListener('click', copyResults);
+  
+  // Instantly populate the first generation on load
+  const initialResultsDiv = document.getElementById('results');
+  for (const [category, options] of Object.entries(factionData)) {
+    const randomIndex = Math.floor(Math.random() * options.length);
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'result-group';
+    groupDiv.innerHTML = `<span class="category-name">${category}</span><span class="category-value">${options[randomIndex]}</span>`;
+    initialResultsDiv.appendChild(groupDiv);
+  }
+</script>
+
+</body>
+</html>
