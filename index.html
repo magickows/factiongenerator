@@ -230,25 +230,26 @@
     pointer-events: none;
     color: #84521b;
     font-family: 'Courier New', monospace;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-shadow: 0 0 1px rgba(0,0,0,0.16);
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 2px rgba(255,255,255,0.65), 0 1px 1px rgba(0,0,0,0.18);
     opacity: 0;
-    animation: burstFade 0.95s ease-out forwards;
+    animation: burstFade 1.1s ease-out forwards;
     z-index: 2;
     white-space: nowrap;
+    transform: translateZ(0);
   }
 
   .burst.is-critical-success {
     color: #7a1f1f;
-    font-size: 12px;
-    letter-spacing: 0.1em;
+    font-size: 14px;
+    letter-spacing: 0.12em;
   }
 
   .burst.is-critical-failure {
     color: #5f5a4f;
-    font-size: 11px;
+    font-size: 13px;
   }
 
   @keyframes fadeIn {
@@ -275,7 +276,7 @@
     }
     100% {
       opacity: 0;
-      transform: translate3d(var(--x), var(--y), 0) scale(0.8);
+      transform: translate3d(var(--x), var(--y), 0) scale(0.9);
     }
   }
 
@@ -366,11 +367,11 @@
 
     burst.style.left = `${x}px`;
     burst.style.top = `${y}px`;
-    burst.style.setProperty('--x', `${(Math.random() * 28 - 14)}px`);
-    burst.style.setProperty('--y', `${(Math.random() * -34 - 10)}px`);
+    burst.style.setProperty('--x', `${(Math.random() * 40 - 20)}px`);
+    burst.style.setProperty('--y', `${(Math.random() * -48 - 12)}px`);
     document.querySelector('.container').appendChild(burst);
 
-    setTimeout(() => burst.remove(), 950);
+    setTimeout(() => burst.remove(), 1100);
   }
 
   function generateRandomFaction() {
