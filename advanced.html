@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign Prep Generators</title>
+<style>
+  body { 
+    font-family: Georgia, 'Times New Roman', serif; 
+    padding: 20px; 
+    background-color: #f4ecd8; 
+    color: #000000;
+  }
+  .container { 
+    max-width: 650px; 
+    margin: auto; 
+    background-color: #fcf9f2; 
+    padding: 30px; 
+    border-radius: 4px; 
+    border: 1px solid #dcd1be;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.1); 
+  }
+  .input-group {
+    margin-bottom: 15px;
+  }
+  label {
+    display: block;
+    font-weight: bold;
+    color: #5e1616;
+    margin-bottom: 5px;
+  }
+  select, input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-family: Georgia, 'Times New Roman', serif;
+    background-color: #f4ecd8;
+    border: 1px solid #dcd1be;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  .generator-section {
+    display: none; 
+    padding: 15px;
+    background-color: #e9eed5;
+    border: 1px solid #dcd1be;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  button { 
+    display: block;
+    width: 100%;
+    padding: 15px; 
+    font-size: 18px; 
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: bold;
+    cursor: pointer; 
+    background-color: #8a2525; 
+    color: #f4ecd8; 
+    border: 2px solid #5e1616; 
+    border-radius: 6px; 
+    margin-top: 20px;
+    margin-bottom: 25px; 
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    transition: background-color 0.2s;
+  }
+  button:hover { 
+    background-color: #701c1c; 
+  }
+  #results {
+    margin-top: 20px;
+  }
+  .result-group { 
+    display: flex;
+    padding: 8px 12px; 
+    border-bottom: 1px solid #e0d8c3;
+  }
+  .result-group:nth-child(even) {
+    background-color: #e9eed5;
+  }
+  .category-name { 
+    font-weight: bold; 
+    color: #5e1616; 
+    width: 160px; 
+    flex-shrink: 0;
+  }
+  .category-value { 
+    font-size: 1.05em; 
+    color: #000000; 
+  }
+  .footer-text {
+    text-align: center;
+    font-size: 11px;
+    opacity: 0.3;
+    margin-top: 30px;
+    font-family: sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="input-group">
+    <label for="masterSelect">Select Generator:</label>
+    <select id="masterSelect">
+      <option value="none">-- Choose a Generator --</option>
+      <option value="faction">Random Faction</option>
+      <option value="narrative">Narrative Hook & Backstory Weaver</option>
+      <option value="npc">NPC Vocal Quirk & Mannerism Generator</option>
+      <option value="horror">Unsettling Lore & Horror Encounter Builder</option>
+      <option value="tavern">The Local Tavern Menu & Rumor Mill</option>
+    </select>
+  </div>
+
+  <!-- Faction Inputs (None required, just a message) -->
+  <div id="faction-inputs" class="generator-section">
+    <div class="input-group" style="margin-bottom: 0;">
+      <p style="color: #5e1616; font-style: italic; margin: 0;">No inputs required. Simply click generate below to roll on all 19 faction tables!</p>
+    </div>
+  </div>
+
+  <!-- Narrative Inputs -->
+  <div id="narrative-inputs" class="generator-section">
+    <div class="input-group">
+      <label for="charRace">Character Race:</label>
+      <select id="charRace">
+        <option>Dwarf</option><option>Elf</option><option>Human</option><option>Halfling</option><option>Tiefling</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label for="charClass">Character Class:</label>
+      <select id="charClass">
+        <option>Cleric</option><option>Fighter</option><option>Rogue</option><option>Wizard</option><option>Bard</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- NPC Inputs -->
+  <div id="npc-inputs" class="generator-section">
+    <div class="input-group">
+      <label for="npcProfession">NPC Profession (e.g., Blacksmith, Guard):</label>
+      <input type="text" id="npcProfession" placeholder="Enter profession...">
+    </div>
+    <div class="input-group">
+      <label for="npcMood">Current Mood:</label>
+      <select id="npcMood">
+        <option>Suspicious</option><option>Jovial</option><option>Exhausted</option><option>Terrified</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Horror Inputs -->
+  <div id="horror-inputs" class="generator-section">
+    <div class="input-group">
+      <label for="horrorEnv">Environment:</label>
+      <select id="horrorEnv">
+        <option>Ancient Ruins</option><option>Deep Forest</option><option>Sewer System</option><option>Abandoned Village</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tavern Inputs -->
+  <div id="tavern-inputs" class="generator-section">
+    <div class="input-group">
+      <label for="tavernWealth">Tavern Wealth Level:</label>
+      <select id="tavernWealth">
+        <option>Poor</option><option>Modest</option><option>Affluent</option>
+      </select>
+    </div>
+  </div>
+
+  <button id="generateBtn" style="display:none;">Generate</button>
+  <div id="results"></div>
+  
+  <div class="footer-text">powered by kows 2026</div>
+</div>
+
+<script>
+  const masterSelect = document.getElementById('masterSelect');
+  const generateBtn = document.getElementById('generateBtn');
+  const sections = ['faction-inputs', 'narrative-inputs', 'npc-inputs', 'horror-inputs', 'tavern-inputs'];
+
+  masterSelect.addEventListener('change', function() {
+    sections.forEach(sec => document.getElementById(sec).style.display = 'none');
+    document.getElementById('results').innerHTML = '';
+    
+    if (this.value !== 'none') {
+      document.getElementById(this.value + '-inputs').style.display = 'block';
+      generateBtn.style.display = 'block';
+      generateBtn.textContent = 'Generate ' + masterSelect.options[masterSelect.selectedIndex].text;
+    } else {
+      generateBtn.style.display = 'none';
+    }
+  });
+
+  // Master Data Object containing all 5 generators
+  const data = {
+    faction: {
+      "Type": ["Academy", "Religion", "Guild", "Gang", "Military", "Activists", "Council", "Institute", "Union", "Conclave", "Club", "Judiciary", "Family", "Exiles", "Syndicate", "Radicals", "Charity", "Raiders", "Refugees", "Office", "Business", "Envoy", "State", "Nomads", "Society", "Company", "Agency", "League", "Crew", "Team", "Chamber", "Industry", "Order", "Troupe", "Clan", "Cult"],
+      "Culture": ["Ruthless", "Open", "Ranked", "Secretive", "Curious", "Diligent", "Prejudice", "Caring", "Closed", "Obtuse", "Efficient", "Chaotic", "Abusive", "Cruel", "Disturbed", "Calm", "Angry", "Quiet", "Sinister", "Focused", "Driven", "Careless", "Precise", "Bold", "Zealous", "Daring", "Abstract", "Spiritual", "Joyous", "Hopeless", "Just", "Honour", "Regulated", "Freedom", "Uncanny", "Hive"],
+      "Aesthetic": ["Gothic", "Pompous", "Gilded", "Ragged", "Humble", "Dour", "Fearsome", "Official", "Combat", "Bright", "Grim", "Plain", "Sinister", "Painful", "Graceful", "Cold", "Dreamy", "Light", "Heavy", "Esoteric", "Messy", "Eclectic", "Dire", "Copied", "Elegant", "Pleasant", "Gentle", "Tired", "Selective", "Opulent", "Wretched", "Placid", "Fresh", "Testing", "Ordinary", "Colourful"],
+      "Theme": ["Combat", "Politics", "Faith", "Occult", "Prophecy", "Research", "Magic", "Plants", "Animals", "Messages", "Transport", "Makers", "Records", "Warding", "Secrets", "Media", "Art", "Cosmic", "Crime", "Monsters", "Hunting", "Crafting", "Spectacle", "Legal", "Service", "Upkeep", "Books", "Discovery", "Mapping", "Buildings", "Medicine", "Addiction", "Science", "Travel", "Trade", "Illusion"],
+      "Base": ["Cave", "Ship", "Caravan", "Fortress", "Temple", "Factory", "Office", "Manor", "Palace", "Tower", "District", "Castle", "Keep", "Shop", "Harbour", "Camp", "House", "Sewer", "Platform", "Island", "Prison", "Crypt", "Basement", "Hall", "Ruin", "Arena", "Titan", "Vault", "Village", "Shack", "Storage", "Bridge", "Pit", "Estate", "City", "None"],
+      "Roles": ["Archivist", "Labourer", "Fixer", "Artisan", "Manager", "Clerk", "Agent", "Spy", "Soldier", "Envoy", "Supplier", "Scout", "Driver", "Porter", "Examiner", "Teacher", "Analyst", "Designer", "Warden", "Priest", "Publicist", "Trader", "Guardian", "Support", "Inspector", "Historian", "Carer", "Healer", "Recruiter", "Lawyer", "Trickster", "Politician", "Strategist", "Fodder", "Speaker", "Leader"],
+      "Size": ["Tiny", "Small", "Moderate", "Large", "Big", "Colossal"],
+      "Repute": ["Hated", "Disliked", "Unsure", "Tolerated", "Liked", "Loved"],
+      "Wealth": ["Poor", "Little", "Modest", "Stable", "Affluent", "Rich"],
+      "Age": ["Weeks", "Months", "Years", "Decades", "Centuries", "Ancient"],
+      "Leaders": ["None", "One", "Few", "Dozen", "Dozens", "Countless"],
+      "Prospects": ["Dire", "Bad", "Troubled", "Fair", "Good", "Great"],
+      "Aim": ["Attack", "Learn", "Deceive", "Recruit", "Defend", "Transport", "Acquire", "Build", "Stabilise", "Recover", "Infiltrate", "Control", "Influence", "Hide", "Obscure", "Uncover", "Vindicate", "Inspect", "Explore", "Ascend", "Honour", "Worship", "Study", "Attend", "Oppress", "Publicise", "Advocate", "Fix", "Heal", "Harvest", "Distract", "Ruin", "Connect", "Sabotage", "Reclaim", "Suppress"],
+      "Obstacle": ["Culture", "Obscurity", "Beasts", "Monsters", "Building", "Security", "Terrain", "Debate", "Infighting", "Battle", "Sickness", "Isolation", "Crime", "Chaos", "Faith", "Scarcity", "Distrust", "Magic", "Authority", "Law", "Lies", "Repute", "Detection", "Distance", "Deficit", "Plenty", "Numbers", "Secrecy", "Trust", "Code", "Ignorance", "Prejudice", "Rivalry", "Trials", "Ritual", "Cosmic"],
+      "Motive": ["Greed", "Faith", "History", "Health", "Honour", "Curiosity", "Fear", "Repute", "Guilt", "Biological", "Revenge", "Madness", "Creative", "Hunger", "Inclusion", "Peace", "Security", "Stability", "Legacy", "Balance", "Hatred", "Despair", "Disgust", "Spite", "Justice", "Victory", "Ecstasy", "Poverty", "Hope", "Disparity", "Cynicism", "Sadistic", "Duty", "Tragedy", "Sadness", "Joy"],
+      "Relationship": ["Tenuous", "Suspicion", "Abusive", "Peaceful", "Resentful", "Formal", "Distant", "Rivalry", "Mutual", "Selfish", "Parasitic", "Tangled", "Cruel", "Dreamy", "Obscure", "Needed", "Symbiotic", "Sensible", "Tragic", "Storied", "Sickening", "Hateful", "Majestic", "Familial", "Fleeting", "Reliant", "Close", "Trusting", "Placid", "Contract", "Timid", "Secret", "Deceptive", "Chaotic", "Tactical", "Happy"],
+      "Past": ["Deceived", "Vilified", "Respected", "Hunted", "Loss", "Ruin", "Toil", "Advanced", "Riches", "Betrayals", "Infighting", "Heroism", "Boring", "Exile", "Retreat", "Horror", "Sacrifice", "Trickery", "Discovery", "Bloody", "Pacts", "Rejection", "Hostility", "Fear", "Abuse", "Authority", "Foiled", "Luxury", "Poverty", "Peace", "Crisis", "Research", "Relocated", "Questions", "Mystical", "Gritty"],
+      "Resource": ["Numbers", "Weapons", "Defences", "Wards", "Magic", "Supplies", "Materials", "Expertise", "Allies", "Fame", "Contacts", "Factories", "Property", "Land", "Transport", "Animals", "Loyalty", "Stockpiles", "Artefacts", "Authority", "Shops", "Secrets", "Safehouse", "Plants", "Relics", "History", "Territory", "Science", "Maps", "Port", "Intel", "Luxury", "Crafting", "Reach", "Info", "Will"],
+      "Vulnerability": ["Isolation", "Greed", "Pride", "Honour", "Combat", "Fear", "Faith", "Slow", "Desperate", "Poverty", "Hatred", "Rivalry", "Reliance", "Temper", "Principles", "Nostalgic", "History", "Ignorance", "Addiction", "Fickle", "Disorder", "Excitable", "Panic", "Unity", "Pacts", "Illness", "Unity", "Magic", "Novelty", "Threat", "Ambition", "Impulsive", "Protocol", "Restraint", "Sickness", "Cosmic"]
+    },
+    narrative: {
+      motivations: [
+        "To clear their family name from a false treason charge", "Seeking revenge for a lost mentor", 
+        "Running from a massive, unpayable debt", "Looking for a mythical, world-altering artifact",
+        "Fulfilling a dying promise to a mysterious stranger", "Trying to break a multi-generational curse",
+        "Seeking a glorious death in combat to appease their god", "Hunting down the thief who stole their heirloom",
+        "Escaping a politically arranged and dangerous marriage", "Trying to find a cure for a magical, slow-acting affliction",
+        "Proving their worth to an estranged, demanding parent", "Collecting rare ingredients for a masterwork creation",
+        "Hiding from a powerful assassins' guild they betrayed", "Attempting to map an uncharted and deadly continent",
+        "Searching for their twin sibling who vanished years ago", "Atoning for a catastrophic past mistake that cost lives",
+        "Trying to outrun a terrifying, apocalyptic prophecy", "Desperately seeking the approval of their silent deity",
+        "Earning enough gold to buy back their stolen childhood home", "Tracking down a monster that only they have seen"
+      ],
+      secrets: [
+        "Stole valor from a fallen comrade", "Is actually a runaway noble in hiding", 
+        "Made a pact with a minor fiend accidentally", "Cannot read, despite pretending to be a scholar",
+        "Accidentally caused the fire that burned their village", "Is working as an informant for the local thieves' guild",
+        "Suffers from terrible, prophetic nightmares", "Stole their magical focus from their former master",
+        "Secretly worships an outlawed or evil deity", "Was once possessed by a ghost and still hears its voice",
+        "Has a bounty on their head in three different kingdoms", "Is not the original owner of their own name/identity",
+        "Killed an innocent person during a chaotic tavern brawl", "Harbors a deep, paralyzing fear of open water",
+        "Was dishonorably discharged from a prestigious military unit", "Is holding onto a map that leads to a dragon's hoard",
+        "Owes a life debt to a notorious crime lord", "Actually agrees with the villain's philosophy",
+        "Has a cursed tattoo that is slowly spreading across their chest", "Falsified the documents that gave them their current rank"
+      ],
+      quirks: [
+        "Collects small smooth stones from every place they visit", "Never faces a door with their back", 
+        "Apologizes to items they accidentally drop or break", "Refuses to eat warm food, preferring it completely cold",
+        "Sleeps with their boots on, just in case", "Flips a copper coin to make minor life decisions",
+        "Hums off-key tavern songs when they are nervous", "Constantly whittles small wooden animals from twigs",
+        "Refuses to shake hands with anyone under any circumstances", "Bites their fingernails down to the quick",
+        "Compulsively counts stairs out loud when climbing them", "Sprinkles salt across thresholds before crossing",
+        "Speaks in the third person when they get angry", "Always carries a rusty, useless key in their pocket",
+        "Checks their pockets for gold every five minutes", "Refuses to sleep under a solid roof if a tent is an option",
+        "Laughs at completely inappropriate and tense times", "Never uses contractions when speaking",
+        "Gives elaborate nicknames to their weapons and tools", "Mutters prayers under their breath constantly"
+      ]
+    },
+    npc: {
+      mannerisms: [
+        "Constantly cracks their knuckles loudly", "Paces back and forth incessantly while talking", 
+        "Squints closely at anyone speaking, as if they are far away", "Plays with a coin between their fingers expertly",
+        "Chews heavily on the inside of their cheek", "Taps their foot to a frantic, unheard rhythm",
+        "Adjusts their collar or clothing uncomfortably", "Avoids eye contact entirely, looking only at the floor",
+        "Rubs the back of their neck when answering questions", "Strokes their chin thoughtfully before every sentence",
+        "Sniffs loudly every few sentences", "Points a finger aggressively when emphasizing a point",
+        "Sighs heavily before answering any question", "Picks at a scab or dirt under their fingernails",
+        "Crosses their arms tightly over their chest defensively", "Leans in far too close when talking to someone",
+        "Fidgets obsessively with a piece of jewelry", "Repeatedly tucks stray hair behind their ears",
+        "Gesticulates wildly with both hands to tell a story", "Licks their lips nervously before speaking"
+      ],
+      vocal: [
+        "Speaks in a raspy, strained whisper", "Has a booming, overly theatrical voice", 
+        "Ends every sentence with a high-pitched squeak", "Clears their throat every few words",
+        "Stutters heavily on words starting with 'T' or 'C'", "Speaks incredibly slowly, savoring every syllable",
+        "Has a thick, nearly incomprehensible regional accent", "Uses overly formal and archaic vocabulary",
+        "Whispers everything as if it's a deeply guarded secret", "Laughs nervously after almost every statement",
+        "Speaks in a flat, emotionless monotone", "Constantly interrupts themselves to change the subject",
+        "Ends sentences with an upward, questioning inflection", "Pronounces their 'R's as 'W's",
+        "Has a deep, rumbling growl of a voice", "Speaks entirely in short rhymes or vague riddles",
+        "Sounds like they are always completely out of breath", "Uses a lot of localized slang that makes no sense",
+        "Pauses for long, uncomfortable moments between words", "Shouts the first word of every sentence unexpectedly"
+      ]
+    },
+    horror: {
+      sensory: [
+        "The overwhelming smell of copper and ozone", "A sudden, unnatural drop in temperature that fogs breath", 
+        "The sound of hundreds of insects scurrying just out of sight", "Total, deafening silence where there should be noise",
+        "A faint, sickening sweet scent of rotting lilies", "The feeling of cobwebs brushing the face, but nothing is there",
+        "A low-frequency hum that vibrates painfully in the teeth", "The taste of dry ash suddenly coating the tongue",
+        "Shadows that seem slightly too long and jagged for the lighting", "A cold, wet wind blowing outward from a dead-end hallway",
+        "The distant, echoing sound of a child crying", "The pungent smell of old, stagnant swamp water",
+        "An intense prickling feeling of being watched by many unseen eyes", "The ground feels spongy and soft, like walking on flesh",
+        "An unexplained metallic scraping sound from the ceiling", "The distinct scent of cheap perfume mixed with formaldehyde",
+        "A sudden pressure in the ears, like descending rapidly underwater", "The flicker of frantic movement constantly in the peripheral vision",
+        "An oppressive feeling of dread that causes mild nausea", "The distinct sound of heavy, wet breathing just over the shoulder"
+      ],
+      cues: [
+        "A rhythmic tapping coming from inside the solid stone walls", "A distorted voice whispering the party's full names", 
+        "Shadows elongating in the wrong direction, towards the light source", "Footsteps mimicking the party, but exactly one second delayed",
+        "A mirror that reflects the room perfectly, except for the characters", "A pool of thick blood that slowly flows uphill",
+        "Doors that lock themselves the moment a character looks away", "Unseen hands forcefully shoving a character backward down a step",
+        "A painting whose subject changes position every time it's viewed", "A perfectly preserved, steaming warm meal left on a dusty table",
+        "A flock of dead birds falling from the sky simultaneously", "Text on a page rearranging itself to form a personalized threat",
+        "A doppelganger of a party member briefly seen turning a corner", "A sudden swarm of fat black flies bursting from a sealed container",
+        "An inanimate object (like a chair) bleeding profusely when cut", "The party's shadows acting out a gruesome murder on the wall",
+        "A grandfather clock ticking backward at a rapid pace", "Unintelligible writing appearing in condensation on a glass surface",
+        "A localized area where gravity suddenly pulls sideways", "The terrifying feeling of an invisible, freezing hand gripping a wrist"
+      ]
+    },
+    tavern: {
+      food: [
+        "Crispy Wyvern Wings with Fire Sauce", "Sticky Sesame Cockatrice", "Sweet and Sour Basilisk", 
+        "Underdark Meat Lo Mein", "Stuffed Myconid Caps with Cheese", "Roast Boar with Apple and Sage",
+        "Dire Wolf Stew in a Stale Bread Bowl", "Fried Otyugh Tentacles (An acquired taste)", "Giant Spider Crab Cakes",
+        "Spiced Griffon Kabobs with Peppers", "Thick Manticore Tail Soup", "Black Pudding Pudding (Dessert)",
+        "Owlbear Steaks with Peppercorn Sauce", "Treant Bark Salad with Vinaigrette", "Sahuagin Sushi Platter",
+        "Minotaur Ribs with Smoky BBQ Glaze", "Kraken Calamari Rings", "Savory Flumph Soufflé",
+        "Gelatinous Cube Jelly on Toast", "Dragonborn Spicy Chili with Beans"
+      ],
+      drinks: [
+        "Chilled Minotaur Milk", "Fermented Cave-Yogurt", "Dwarven Iron-Stout", 
+        "Elven Star-Wine", "Gut-Punch Moonshine", "Dragon's Breath Whiskey (Extremely Spicy)",
+        "Pixie Dust Hard Cider", "Goblin Spit Ale (Served warm)", "Orcish Blood-Rum",
+        "Tiefling Fire-Brandy", "Halfling Honeymead", "Drow Mushroom Tea (Hallucinogenic)",
+        "Aboleth Ink Espresso", "Feywild Floral Gin", "Necromancer's Pale Ale",
+        "Beholder's Eye Vodka", "Mind Flayer Brain-Freeze (Ice Slushie)", "Paladin's Holy Water Seltzer",
+        "Ranger's Pine-Needle Brew", "Sorcerer's Wild Magic Mixer (Changes color constantly)"
+      ],
+      rumors: [
+        "The mayor hasn't been seen during the day for weeks.", "The old mill on the hill glows green at midnight.", 
+        "Someone has been leaving gold coins on gravestones in the cemetery.", "The local blacksmith is secretly forging weapons for a goblin army.",
+        "A ghostly ship was seen sailing through the fog on the dry plains.", "The innkeeper's new wife is a hag in disguise.",
+        "The statues in the town square change poses when nobody is looking.", "A massive sinkhole opened up, revealing an ancient temple.",
+        "The river water has tasted like blood for the past three days.", "A pack of wolves has been seen protecting a human child in the woods.",
+        "The baron's prized racehorse was found drained of blood.", "The local wizard's tower disappeared completely overnight.",
+        "People are waking up with strange, identical tattoos on their arms.", "A traveling merchant is selling potions that grant temporary immortality.",
+        "The graveyard has been completely empty of bodies since Tuesday.", "A dragon was seen flying overhead, carrying a golden carriage.",
+        "The town well is whispering secrets to anyone who lowers a bucket.", "A strange cult is recruiting in the sewers beneath the city.",
+        "The king's youngest daughter has run away to join a band of pirates.", "The stars in the sky were completely rearranged last night."
+      ]
+    }
+  };
+
+  function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  generateBtn.addEventListener('click', function() {
+    const type = masterSelect.value;
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = ''; 
+
+    let generatedData = {};
+
+    if (type === 'faction') {
+      // Loop through all 19 faction categories automatically
+      for (const [category, options] of Object.entries(data.faction)) {
+        generatedData[category] = getRandom(options);
+      }
+    }
+    else if (type === 'narrative') {
+      generatedData = {
+        "Identity": document.getElementById('charRace').value + " " + document.getElementById('charClass').value,
+        "Motivation": getRandom(data.narrative.motivations),
+        "Dark Secret": getRandom(data.narrative.secrets),
+        "Quirk": getRandom(data.narrative.quirks)
+      };
+    } 
+    else if (type === 'npc') {
+      const prof = document.getElementById('npcProfession').value || "Commoner";
+      const mood = document.getElementById('npcMood').value;
+      generatedData = {
+        "Profile": mood + " " + prof,
+        "Mannerism": getRandom(data.npc.mannerisms),
+        "Vocal Quirk": getRandom(data.npc.vocal)
+      };
+    } 
+    else if (type === 'horror') {
+      generatedData = {
+        "Location": document.getElementById('horrorEnv').value,
+        "Sensory Detail": getRandom(data.horror.sensory),
+        "Creepy Event": getRandom(data.horror.cues)
+      };
+    } 
+    else if (type === 'tavern') {
+      generatedData = {
+        "Wealth": document.getElementById('tavernWealth').value,
+        "Chef's Special": getRandom(data.tavern.food),
+        "Local Beverage": getRandom(data.tavern.drinks),
+        "Overheard Rumor": getRandom(data.tavern.rumors)
+      };
+    }
+
+    // Render logic for whichever generator was chosen
+    for (const [key, value] of Object.entries(generatedData)) {
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'result-group';
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'category-name';
+      nameSpan.textContent = key;
+      
+      const valueSpan = document.createElement('span');
+      valueSpan.className = 'category-value';
+      valueSpan.textContent = value;
+
+      groupDiv.appendChild(nameSpan);
+      groupDiv.appendChild(valueSpan);
+      resultsDiv.appendChild(groupDiv);
+    }
+  });
+</script>
+
+</body>
+</html>
