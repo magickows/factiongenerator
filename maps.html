@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Campaign Dashboard</title>
+    <style>
+        /* KOWS 2026 D&D LIGHT THEME */
+        :root {
+            --bg-parchment: #f4ecd8;
+            --container-bg: #fcf9f2;
+            --border-color: #dcd1be;
+            --text-main: #333333;
+            --header-maroon: #5e1616;
+            --row-even-tint: #e9eed5;
+            --row-border: #e0d8c3;
+            --btn-red: #8a2525;
+            --btn-hover: #701c1c;
+        }
+
+        body {
+            background-color: var(--bg-parchment);
+            color: var(--text-main);
+            font-family: Georgia, 'Times New Roman', serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1, h2, h3 {
+            color: var(--header-maroon);
+            font-weight: bold;
+            margin-top: 0;
+        }
+
+        .main-container {
+            background-color: var(--container-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* --- BUTTONS --- */
+        .btn-leathery {
+            background-color: var(--btn-red);
+            color: white;
+            border: 1px solid #4a1010;
+            padding: 12px 24px;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            transition: background-color 0.2s;
+        }
+
+        .btn-leathery:hover {
+            background-color: var(--btn-hover);
+        }
+
+        /* --- TABS --- */
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid var(--header-maroon);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-link {
+            background: none;
+            border: none;
+            color: var(--header-maroon);
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.2s;
+        }
+
+        .tab-link:hover {
+            background-color: var(--row-even-tint);
+        }
+
+        .tab-link.active {
+            background-color: var(--header-maroon);
+            color: var(--bg-parchment);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- LISTS & ROWS --- */
+        .list-container {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: white;
+            margin-bottom: 20px;
+        }
+
+        .list-row {
+            padding: 15px;
+            border-bottom: 1px solid var(--row-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-row:last-child {
+            border-bottom: none;
+        }
+
+        .list-row:nth-child(even) {
+            background-color: var(--row-even-tint);
+        }
+
+        /* --- APP 2: LOOT BOX --- */
+        .loot-display {
+            font-size: 2em;
+            text-align: center;
+            padding: 40px 20px;
+            border: 2px dashed var(--border-color);
+            background-color: var(--bg-parchment);
+            margin-bottom: 20px;
+            min-height: 40px;
+        }
+
+        /* --- APP 3: TENSION BAR --- */
+        .tension-track {
+            width: 100%;
+            height: 50px;
+            background-color: var(--border-color);
+            border: 2px inset #bfa888;
+            border-radius: 25px;
+            margin: 30px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tension-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--btn-red);
+            transition: width 0.5s ease-in-out;
+            box-shadow: inset 0 3px 5px rgba(255,255,255,0.2);
+        }
+
+        .tension-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* --- APP 4: INTERACTIVE SKETCHED MAP --- */
+        .map-header {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .map-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            background-color: #f7f1e3; /* Aged paper tone for map canvas */
+            overflow: hidden;
+        }
+
+        #procedural-map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-pin {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: var(--btn-red);
+            border: 2px solid var(--container-bg);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            transition: transform 0.2s, background-color 0.2s;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .map-pin:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+            background-color: var(--btn-hover);
+            z-index: 20;
+        }
+
+        .map-info-panel {
+            background-color: var(--bg-parchment);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 4px;
+            min-height: 120px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: auto;
+            padding-top: 40px;
+            font-family: sans-serif;
+            font-size: 11px;
+            opacity: 0.3;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <div class="tab-nav">
+            <button class="tab-link active" onclick="openTab(event, 'notice-board')">Notice Board</button>
+            <button class="tab-link" onclick="openTab(event, 'loot-machine')">Loot Reveal</button>
+            <button class="tab-link" onclick="openTab(event, 'doom-clock')">Tension Tracker</button>
+            <button class="tab-link" onclick="openTab(event, 'interactive-map')">Interactive Map</button>
+        </div>
+
+        <!-- APP 1: NOTICE BOARD -->
+        <div id="notice-board" class="tab-content active">
+            <h2>Local Bounties & Rumors</h2>
+            <p>Share this screen with players when they check the tavern board.</p>
+            
+            <div class="list-container">
+                <div class="list-row">
+                    <span><strong>Wanted:</strong> Goblins in the eastern woods.</span>
+                    <span>50 GP</span>
+                </div>
+                <div class="list-row">
+                    <span><strong>Missing:</strong> The blacksmith's apprentice, last seen near the crypts.</span>
+                    <span>100 GP</span>
+                </div>
+                <div class="list-row">
+                    <span><strong>Notice:</strong> The Magistrate has declared a curfew after sundown.</span>
+                    <span>---</span>
+                </div>
+                <div class="list-row">
+                    <span><strong>Selling:</strong> Slightly cursed ring of jumping. No refunds.</span>
+                    <span>20 GP</span>
+                </div>
+                <div class="list-row">
+                    <span><strong>Warning:</strong> Do not drink from the well in the lower district.</span>
+                    <span>---</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- APP 2: LOOT MACHINE -->
+        <div id="loot-machine" class="tab-content">
+            <h2>The Loot Reveal</h2>
+            
+            <div class="loot-display" id="loot-text">
+                ... awaiting discovery ...
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 30px;">
+                <button class="btn-leathery" onclick="rollLoot()">Open Chest</button>
+            </div>
+
+            <h3>Loot History</h3>
+            <div class="list-container" id="loot-history">
+                <div class="list-row" style="color: #888; font-style: italic;">
+                    No loot discovered yet.
+                </div>
+            </div>
+        </div>
+
+        <!-- APP 3: DOOM CLOCK -->
+        <div id="doom-clock" class="tab-content">
+            <h2 id="tension-title" style="text-align: center; font-size: 2.5em;">Current Tension</h2>
+            
+            <div class="tension-track">
+                <div class="tension-fill" id="tension-bar"></div>
+            </div>
+
+            <div class="tension-controls">
+                <button class="btn-leathery" onclick="updateTension(-10)">- Reduce (-10)</button>
+                <button class="btn-leathery" onclick="updateTension(20)">+ Increase (+20)</button>
+                <button class="btn-leathery" style="background-color: #333; border-color: #222;" onclick="resetTension()">Reset</button>
+            </div>
+        </div>
+
+        <!-- APP 4: INTERACTIVE SKETCHED MAP -->
+        <div id="interactive-map" class="tab-content">
+            <div class="map-header">
+                <h2 style="margin: 0;">Regional Map</h2>
+                <button class="btn-leathery" style="padding: 6px 14px; font-size: 0.9em;" onclick="generateSketchedMap()">Regenerate Map</button>
+            </div>
+            <p>Click a marker to view local information and rumors.</p>
+            
+            <div class="map-canvas-container" id="map-container">
+                <canvas id="procedural-map" width="800" height="380"></canvas>
+            </div>
+
+            <div class="map-info-panel" id="map-info">
+                <h3 style="margin-top: 0;">Select a Region</h3>
+                <p>No location currently selected. Click a red pin on the map above to inspect the area.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>powered by kows 2026</footer>
+
+    <script>
+        window.onload = function() {
+            generateSketchedMap();
+        };
+
+        function openTab(evt, tabName) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // --- LOOT REVEAL LOGIC ---
+        const lootTable = [
+            "Potion of Greater Healing", "A rusty dagger with an unknown crest", "10,000 iron nails", 
+            "Cloak of Elvenkind", "A single, glowing blue coin", "Wand of Magic Missiles",
+            "A half-eaten apple that never rots", "Scroll of Fireball", "A wooden carved owl",
+            "Boots of Striding and Springing", "Bag of Holding (smells vaguely of cheese)",
+            "A deed to a ruined tavern in the capital", "+1 Longsword that glows faintly purple",
+            "A sealed jar of pickled goblin eyes", "Ring of Feather Falling",
+            "A highly compromising love letter addressed to a local king", "500 gold pieces in a velvet pouch",
+            "A compass that only points to the nearest tavern", "Potion of Invisibility",
+            "A sentient, floating skull companion that complains constantly", "Adamantine Chain Shirt",
+            "A silver locket with a moving portrait inside", "Boots of Elvenkind",
+            "A heavily cursed, bone-carved flute", "3 vials of potent Wyvern poison",
+            "A clockwork sparrow that repeats the last sentence it heard", "Robe of Useful Items",
+            "An ancient map missing the northern half", "A small meteorite that is always warm to the touch",
+            "Helm of Telepathy"
+        ];
+        
+        let isRolling = false;
+        let historyCount = 0;
+
+        function rollLoot() {
+            if (isRolling) return;
+            isRolling = true;
+            const display = document.getElementById('loot-text');
+            const history = document.getElementById('loot-history');
+            let shuffleCount = 0;
+            let finalLoot = "";
+
+            const interval = setInterval(() => {
+                const randomItem = lootTable[Math.floor(Math.random() * lootTable.length)];
+                display.innerText = randomItem;
+                shuffleCount++;
+
+                if (shuffleCount > 20) {
+                    clearInterval(interval);
+                    finalLoot = lootTable[Math.floor(Math.random() * lootTable.length)];
+                    display.innerText = finalLoot;
+                    isRolling = false;
+
+                    if (historyCount === 0) history.innerHTML = "";
+
+                    historyCount++;
+                    const newRow = document.createElement('div');
+                    newRow.className = "list-row";
+                    newRow.innerHTML = `<span><strong>Item ${historyCount}:</strong> ${finalLoot}</span>`;
+                    history.prepend(newRow);
+                }
+            }, 100);
+        }
+
+        // --- TENSION TRACKER LOGIC ---
+        let currentTension = 0;
+        const maxTension = 100;
+
+        function updateTension(amount) {
+            currentTension += amount;
+            if (currentTension > maxTension) currentTension = maxTension;
+            if (currentTension < 0) currentTension = 0;
+            renderBar();
+        }
+
+        function resetTension() {
+            currentTension = 0;
+            renderBar();
+        }
+
+        function renderBar() {
+            const bar = document.getElementById('tension-bar');
+            const title = document.getElementById('tension-title');
+            bar.style.width = currentTension + '%';
+
+            if (currentTension >= 80) {
+                title.innerText = "CRITICAL DANGER";
+                title.style.color = "var(--btn-red)";
+            } else {
+                title.innerText = "Current Tension";
+                title.style.color = "var(--header-maroon)";
+            }
+        }
+
+        // --- SKETCHED MAP GENERATION LOGIC ---
+        const mapData = {
+            'capital': { title: 'The High Capital', desc: 'The political heart of the realm. Magic use is strictly monitored here, and the city guard is heavily armed.', rumor: 'They say the King has not left his bedchambers in three weeks.' },
+            'woods': { title: 'The Whispering Woods', desc: 'An ancient, dense forest where the veil between the material plane and the Feywild is notoriously thin.', rumor: 'Travelers claim the trees rearrange themselves at night.' },
+            'peaks': { title: 'Smoldering Peaks', desc: 'A volatile mountain range rich in rare ores. It is home to scattered dwarven outposts.', rumor: 'A massive shadow has been seen circling the highest peak.' },
+            'ruins': { title: 'The Sunken Ruins', desc: 'The remains of a coastal empire that fell into the sea centuries ago.', rumor: 'Fishermen report hearing singing coming from beneath the waves.' },
+            'crossroads': { title: "Merchant's Crossroads", desc: 'A bustling hub of tents, wagons, and temporary structures where the main highways meet.', rumor: 'A black-market dealer known as "The Rook" is looking to buy artifacts.' }
+        };
+
+        function loadMapInfo(regionKey) {
+            const infoPanel = document.getElementById('map-info');
+            const data = mapData[regionKey];
+            if (data) {
+                infoPanel.innerHTML = `
+                    <h3 style="margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">${data.title}</h3>
+                    <p><strong>Lore:</strong> ${data.desc}</p>
+                    <p><strong>Local Rumor:</strong> <em>"${data.rumor}"</em></p>
+                `;
+            }
+        }
+
+        function generateSketchedMap() {
+            const canvas = document.getElementById('procedural-map');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, w, h);
+
+            // Ink color for hand-drawn look
+            const ink = "#4a3b32";
+            ctx.strokeStyle = ink;
+            ctx.fillStyle = "#ebdcc2"; // parchment land fill
+            ctx.lineWidth = 1.5;
+
+            // 1. Draw Sketched Coastline (Blob with multiple overlapping outlines for a pencil-sketch feel)
+            for (let pass = 0; pass < 2; pass++) {
+                ctx.beginPath();
+                let centerX = w / 2 + (Math.random() - 0.5) * 100;
+                let centerY = h / 2 + (Math.random() - 0.5) * 40;
+                let points = 12;
+                let baseRadiusX = 260;
+                let baseRadiusY = 130;
+
+                for (let i = 0; i <= points; i++) {
+                    let angle = (i / points) * Math.PI * 2;
+                    let noise = (Math.random() - 0.5) * 35;
+                    let x = centerX + Math.cos(angle) * (baseRadiusX + noise);
+                    let y = centerY + Math.sin(angle) * (baseRadiusY + noise);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                if (pass === 1) ctx.fill();
+                ctx.stroke();
+            }
+
+            // 2. Sketch Mountain Ranges (Drawn as triangles)
+            ctx.fillStyle = ink;
+            let mtnStartX = 150 + Math.random() * 100;
+            let mtnStartY = 120 + Math.random() * 80;
+            for (let m = 0; m < 6; m++) {
+                let mx = mtnStartX + (m * 22) + (Math.random() - 0.5) * 10;
+                let my = mtnStartY + (Math.sin(m) * 25) + (Math.random() - 0.5) * 10;
+                
+                ctx.beginPath();
+                ctx.moveTo(mx, my + 15);
+                ctx.lineTo(mx + 10, my - 15);
+                ctx.lineTo(mx + 20, my + 15);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // 3. Sketch Forests (Drawn as little looped cloud icons/dots)
+            for (let f = 0; f < 10; f++) {
+                let fx = 450 + (Math.random() - 0.5) * 120;
+                let fy = 200 + (Math.random() - 0.5) * 80;
+                ctx.beginPath();
+                ctx.arc(fx, fy, 6, 0, Math.PI * 2);
+                ctx.arc(fx + 6, fy - 4, 5, 0, Math.PI * 2);
+                ctx.arc(fx + 12, fy, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 4. Sketch Winding Rivers
+            ctx.beginPath();
+            let rx = 300 + Math.random() * 50;
+            let ry = 100;
+            ctx.moveTo(rx, ry);
+            ctx.bezierCurveTo(rx + 40, ry + 50, rx - 30, ry + 100, rx + 20, ry + 180);
+            ctx.stroke();
+
+            // 5. Randomly Place Map Pins
+            const container = document.getElementById('map-container');
+            container.querySelectorAll('.map-pin').forEach(pin => pin.remove());
+
+            const regions = Object.keys(mapData);
+            regions.forEach(key => {
+                const pin = document.createElement('div');
+                pin.className = 'map-pin';
+                pin.title = mapData[key].title;
+                
+                const topPos = 20 + Math.random() * 60;
+                const leftPos = 15 + Math.random() * 70;
+                
+                pin.style.top = `${topPos}%`;
+                pin.style.left = `${leftPos}%`;
+                pin.onclick = () => loadMapInfo(key);
+                
+                container.appendChild(pin);
+            });
+            
+            document.getElementById('map-info').innerHTML = `
+                <h3 style="margin-top: 0;">Select a Region</h3>
+                <p>A new map has been sketched. Click a red pin to inspect the area.</p>
+            `;
+        }
+    </script>
+</body>
+</html>
