@@ -5,148 +5,454 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Faction Generator</title>
 <style>
-  body { 
-    /* Serif font and parchment background color */
-    font-family: Georgia, 'Times New Roman', serif; 
-    padding: 20px; 
-    background-color: #f4ecd8; 
-    color: #000000;
+  :root {
+    --paper: #f7efe0;
+    --panel: #fffdf8;
+    --ink: #1f1814;
+    --accent: #7a1f1f;
+    --accent-strong: #5f1717;
+    --border: #d9ccb1;
+    --row-alt: #efe2c3;
+    --muted: #6e5f49;
   }
-  .container { 
-    max-width: 650px; 
-    margin: auto; 
-    background-color: #fcf9f2; 
-    padding: 30px; 
-    border-radius: 4px; 
-    border: 1px solid #dcd1be;
-    box-shadow: 2px 4px 10px rgba(0,0,0,0.1); 
-  }
-  button { 
-    display: block;
-    width: 100%;
-    padding: 15px; 
-    font-size: 18px; 
-    font-family: Georgia, 'Times New Roman', serif;
-    font-weight: bold;
-    cursor: pointer; 
-    /* Leather red styling */
-    background-color: #8a2525; 
-    color: #f4ecd8; 
-    border: 2px solid #5e1616; 
-    border-radius: 6px; 
-    margin-bottom: 25px; 
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-    transition: background-color 0.2s;
-  }
-  button:hover { 
-    background-color: #701c1c; 
-  }
-  .result-group { 
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
     display: flex;
-    padding: 8px 12px; 
-    border-bottom: 1px solid #e0d8c3;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.35), transparent 28%),
+      linear-gradient(135deg, #f2e5c8 0%, #e7d8b2 100%);
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
-  /* Alternating row colors matching the reference image */
+
+  body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(rgba(0,0,0,0.025) 0.8px, transparent 0.8px),
+      radial-gradient(rgba(255,255,255,0.15) 0.6px, transparent 0.6px);
+    background-size: 16px 16px, 22px 22px;
+    background-position: 0 0, 8px 8px;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  .container {
+    width: min(600px, 100%);
+    margin: auto;
+    background:
+      linear-gradient(120deg, rgba(255,250,240,0.94), rgba(248,240,221,0.96));
+    padding: 18px 18px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(6px);
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.18), transparent 25%),
+      radial-gradient(circle at 80% 0%, rgba(120,80,40,0.05), transparent 30%),
+      linear-gradient(135deg, rgba(0,0,0,0.015), transparent 40%, rgba(0,0,0,0.01));
+    mix-blend-mode: multiply;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .title-block h1 {
+    margin: 0;
+    font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+    line-height: 1.05;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+  }
+
+  .title-block p {
+    margin: 4px 0 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+    max-width: 340px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .action-btn {
+    display: block;
+    flex: 1 1 140px;
+    padding: 7px 10px;
+    font-size: 0.82rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    color: #f9f2e2;
+    border: 1px solid #5f1717;
+    border-radius: 999px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 5px 12px rgba(90, 20, 20, 0.16);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 6px 14px rgba(90, 20, 20, 0.2);
+  }
+
+  .action-btn:active {
+    transform: translateY(0);
+  }
+
+  .action-btn.primary {
+    background: linear-gradient(180deg, #8e2929 0%, #7a1f1f 100%);
+  }
+
+  .action-btn.primary:hover {
+    background: linear-gradient(180deg, #a03030 0%, #7e2323 100%);
+  }
+
+  .action-btn.secondary {
+    flex: 0 0 72px;
+    max-width: 72px;
+    min-width: 72px;
+    padding: 7px 8px;
+    background: linear-gradient(180deg, #b9873b 0%, #9a6d28 100%);
+    border-color: #7d5320;
+  }
+
+  .action-btn.secondary:hover {
+    background: linear-gradient(180deg, #d2a14a 0%, #a67b2e 100%);
+  }
+
+  .action-btn.is-popping {
+    animation: pop 0.16s ease;
+  }
+
+  .status-text {
+    min-height: 0.95rem;
+    margin: 0 0 6px;
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-family: sans-serif;
+  }
+
+  .results {
+    display: grid;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .result-group {
+    display: grid;
+    grid-template-columns: minmax(96px, 118px) 1fr;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    background: var(--panel);
+    animation: fadeIn 0.35s ease both;
+  }
+
   .result-group:nth-child(even) {
-    background-color: #e9eed5;
+    background: var(--row-alt);
   }
-  .category-name { 
-    font-weight: bold; 
-    /* Maroon color for the headers */
-    color: #5e1616; 
-    width: 160px; 
-    flex-shrink: 0;
+
+  .category-name {
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.66rem;
+    align-self: start;
   }
-  .category-value { 
-    font-size: 1.05em; 
-    color: #000000; 
+
+  .category-value {
+    font-size: 0.88rem;
+    line-height: 1.35;
+    color: var(--ink);
   }
+
   .footer-text {
     text-align: center;
-    font-size: 11px;
-    opacity: 0.3;
-    margin-top: 30px;
+    font-size: 0.64rem;
+    color: rgba(0, 0, 0, 0.35);
+    margin-top: 12px;
     font-family: sans-serif;
+  }
+
+  .footer-link {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 0.62rem;
+    color: rgba(0, 0, 0, 0.28);
+    text-decoration: none;
+    transition: color 0.12s ease;
+  }
+
+  .footer-link:hover {
+    color: rgba(0, 0, 0, 0.42);
+    text-decoration: underline;
+  }
+
+  .burst {
+    position: absolute;
+    pointer-events: none;
+    color: #84521b;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 1px rgba(0,0,0,0.16);
+    opacity: 0;
+    animation: burstFade 0.95s ease-out forwards;
+    z-index: 2;
+    white-space: nowrap;
+  }
+
+  .burst.is-critical-success {
+    color: #7a1f1f;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+
+  .burst.is-critical-failure {
+    color: #5f5a4f;
+    font-size: 11px;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes burstFade {
+    0% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(var(--x), var(--y), 0) scale(0.8);
+    }
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 16px; }
+    .container { padding: 22px 18px 20px; }
+    .header { flex-direction: column; align-items: flex-start; }
+    .result-group { grid-template-columns: 1fr; gap: 4px; }
+    .category-name { font-size: 0.72rem; }
   }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <button id="generateBtn">Generate Faction</button>
-  <div id="results"></div>
+  <div class="header">
+    <div class="title-block">
+      <h1>Faction Generator</h1>
+      <p>Craft a vivid, table-ready faction concept with a single click.</p>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="generateBtn" class="action-btn primary">Generate New Faction</button>
+    <button id="copyBtn" class="action-btn secondary">Copy</button>
+  </div>
+  <p id="statusText" class="status-text" aria-live="polite"></p>
+  <div id="results" class="results" aria-live="polite"></div>
   <div class="footer-text">
-    Inspired by /u/Fruta-Puta-Tuta<br><br>
-    <a href="beta.html" style="color: inherit; text-decoration: underline;">beta version</a>
+    Inspired by /u/Fruta-Puta-Tuta
+    <br>
+    <a class="footer-link" href="#" aria-label="Beta version">beta version</a>
   </div>
 </div>
 
 <script>
-  // Complete data fully transcribed from image.png 
   const factionData = {
     "Type": ["Academy", "Religion", "Guild", "Gang", "Military", "Activists", "Council", "Institute", "Union", "Conclave", "Club", "Judiciary", "Family", "Exiles", "Syndicate", "Radicals", "Charity", "Raiders", "Refugees", "Office", "Business", "Envoy", "State", "Nomads", "Society", "Company", "Agency", "League", "Crew", "Team", "Chamber", "Industry", "Order", "Troupe", "Clan", "Cult"],
-    
+
     "Culture": ["Ruthless", "Open", "Ranked", "Secretive", "Curious", "Diligent", "Prejudice", "Caring", "Closed", "Obtuse", "Efficient", "Chaotic", "Abusive", "Cruel", "Disturbed", "Calm", "Angry", "Quiet", "Sinister", "Focused", "Driven", "Careless", "Precise", "Bold", "Zealous", "Daring", "Abstract", "Spiritual", "Joyous", "Hopeless", "Just", "Honour", "Regulated", "Freedom", "Uncanny", "Hive"],
-    
+
     "Aesthetic": ["Gothic", "Pompous", "Gilded", "Ragged", "Humble", "Dour", "Fearsome", "Official", "Combat", "Bright", "Grim", "Plain", "Sinister", "Painful", "Graceful", "Cold", "Dreamy", "Light", "Heavy", "Esoteric", "Messy", "Eclectic", "Dire", "Copied", "Elegant", "Pleasant", "Gentle", "Tired", "Selective", "Opulent", "Wretched", "Placid", "Fresh", "Testing", "Ordinary", "Colourful"],
-    
+
     "Theme": ["Combat", "Politics", "Faith", "Occult", "Prophecy", "Research", "Magic", "Plants", "Animals", "Messages", "Transport", "Makers", "Records", "Warding", "Secrets", "Media", "Art", "Cosmic", "Crime", "Monsters", "Hunting", "Crafting", "Spectacle", "Legal", "Service", "Upkeep", "Books", "Discovery", "Mapping", "Buildings", "Medicine", "Addiction", "Science", "Travel", "Trade", "Illusion"],
-    
+
     "Base": ["Cave", "Ship", "Caravan", "Fortress", "Temple", "Factory", "Office", "Manor", "Palace", "Tower", "District", "Castle", "Keep", "Shop", "Harbour", "Camp", "House", "Sewer", "Platform", "Island", "Prison", "Crypt", "Basement", "Hall", "Ruin", "Arena", "Titan", "Vault", "Village", "Shack", "Storage", "Bridge", "Pit", "Estate", "City", "None"],
-    
+
     "Roles": ["Archivist", "Labourer", "Fixer", "Artisan", "Manager", "Clerk", "Agent", "Spy", "Soldier", "Envoy", "Supplier", "Scout", "Driver", "Porter", "Examiner", "Teacher", "Analyst", "Designer", "Warden", "Priest", "Publicist", "Trader", "Guardian", "Support", "Inspector", "Historian", "Carer", "Healer", "Recruiter", "Lawyer", "Trickster", "Politician", "Strategist", "Fodder", "Speaker", "Leader"],
-    
+
     "Size": ["Tiny", "Small", "Moderate", "Large", "Big", "Colossal"],
     "Repute": ["Hated", "Disliked", "Unsure", "Tolerated", "Liked", "Loved"],
     "Wealth": ["Poor", "Little", "Modest", "Stable", "Affluent", "Rich"],
     "Age": ["Weeks", "Months", "Years", "Decades", "Centuries", "Ancient"],
     "Leaders": ["None", "One", "Few", "Dozen", "Dozens", "Countless"],
     "Prospects": ["Dire", "Bad", "Troubled", "Fair", "Good", "Great"],
-    
+
     "Aim": ["Attack", "Learn", "Deceive", "Recruit", "Defend", "Transport", "Acquire", "Build", "Stabilise", "Recover", "Infiltrate", "Control", "Influence", "Hide", "Obscure", "Uncover", "Vindicate", "Inspect", "Explore", "Ascend", "Honour", "Worship", "Study", "Attend", "Oppress", "Publicise", "Advocate", "Fix", "Heal", "Harvest", "Distract", "Ruin", "Connect", "Sabotage", "Reclaim", "Suppress"],
-    
+
     "Obstacle": ["Culture", "Obscurity", "Beasts", "Monsters", "Building", "Security", "Terrain", "Debate", "Infighting", "Battle", "Sickness", "Isolation", "Crime", "Chaos", "Faith", "Scarcity", "Distrust", "Magic", "Authority", "Law", "Lies", "Repute", "Detection", "Distance", "Deficit", "Plenty", "Numbers", "Secrecy", "Trust", "Code", "Ignorance", "Prejudice", "Rivalry", "Trials", "Ritual", "Cosmic"],
-    
+
     "Motive": ["Greed", "Faith", "History", "Health", "Honour", "Curiosity", "Fear", "Repute", "Guilt", "Biological", "Revenge", "Madness", "Creative", "Hunger", "Inclusion", "Peace", "Security", "Stability", "Legacy", "Balance", "Hatred", "Despair", "Disgust", "Spite", "Justice", "Victory", "Ecstasy", "Poverty", "Hope", "Disparity", "Cynicism", "Sadistic", "Duty", "Tragedy", "Sadness", "Joy"],
-    
+
     "Relationship": ["Tenuous", "Suspicion", "Abusive", "Peaceful", "Resentful", "Formal", "Distant", "Rivalry", "Mutual", "Selfish", "Parasitic", "Tangled", "Cruel", "Dreamy", "Obscure", "Needed", "Symbiotic", "Sensible", "Tragic", "Storied", "Sickening", "Hateful", "Majestic", "Familial", "Fleeting", "Reliant", "Close", "Trusting", "Placid", "Contract", "Timid", "Secret", "Deceptive", "Chaotic", "Tactical", "Happy"],
-    
+
     "Past": ["Deceived", "Vilified", "Respected", "Hunted", "Loss", "Ruin", "Toil", "Advanced", "Riches", "Betrayals", "Infighting", "Heroism", "Boring", "Exile", "Retreat", "Horror", "Sacrifice", "Trickery", "Discovery", "Bloody", "Pacts", "Rejection", "Hostility", "Fear", "Abuse", "Authority", "Foiled", "Luxury", "Poverty", "Peace", "Crisis", "Research", "Relocated", "Questions", "Mystical", "Gritty"],
-    
+
     "Resource": ["Numbers", "Weapons", "Defences", "Wards", "Magic", "Supplies", "Materials", "Expertise", "Allies", "Fame", "Contacts", "Factories", "Property", "Land", "Transport", "Animals", "Loyalty", "Stockpiles", "Artefacts", "Authority", "Shops", "Secrets", "Safehouse", "Plants", "Relics", "History", "Territory", "Science", "Maps", "Port", "Intel", "Luxury", "Crafting", "Reach", "Info", "Will"],
-    
+
     "Vulnerability": ["Isolation", "Greed", "Pride", "Honour", "Combat", "Fear", "Faith", "Slow", "Desperate", "Poverty", "Hatred", "Rivalry", "Reliance", "Temper", "Principles", "Nostalgic", "History", "Ignorance", "Addiction", "Fickle", "Disorder", "Excitable", "Panic", "Unity", "Pacts", "Illness", "Unity", "Magic", "Novelty", "Threat", "Ambition", "Impulsive", "Protocol", "Restraint", "Sickness", "Cosmic"]
   };
 
+  let currentFactionEntries = [];
+
+  function spawnBurst(x, y) {
+    const roll = Math.floor(Math.random() * 20) + 1;
+    const burst = document.createElement('div');
+    burst.className = 'burst';
+
+    if (roll === 20) {
+      burst.textContent = '+20 Critical Success!';
+      burst.classList.add('is-critical-success');
+    } else if (roll === 1) {
+      burst.textContent = '+1 Critical Failure!';
+      burst.classList.add('is-critical-failure');
+    } else {
+      burst.textContent = `+${roll}`;
+    }
+
+    burst.style.left = `${x}px`;
+    burst.style.top = `${y}px`;
+    burst.style.setProperty('--x', `${(Math.random() * 28 - 14)}px`);
+    burst.style.setProperty('--y', `${(Math.random() * -34 - 10)}px`);
+    document.querySelector('.container').appendChild(burst);
+
+    setTimeout(() => burst.remove(), 950);
+  }
+
   function generateRandomFaction() {
     const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = ''; 
+    const statusText = document.getElementById('statusText');
+    resultsDiv.innerHTML = '';
+    currentFactionEntries = [];
+    statusText.textContent = '';
 
-    for (const [category, options] of Object.entries(factionData)) {
+    Object.entries(factionData).forEach(([category, options], index) => {
       const randomIndex = Math.floor(Math.random() * options.length);
       const selectedOption = options[randomIndex];
+      currentFactionEntries.push({ category, value: selectedOption });
 
       const groupDiv = document.createElement('div');
       groupDiv.className = 'result-group';
-      
-      const nameSpan = document.createElement('span');
-      nameSpan.className = 'category-name';
-      nameSpan.textContent = category; // Removed the colon for a cleaner look matching the image
-      
-      const valueSpan = document.createElement('span');
-      valueSpan.className = 'category-value';
-      valueSpan.textContent = selectedOption;
-
-      groupDiv.appendChild(nameSpan);
-      groupDiv.appendChild(valueSpan);
+      groupDiv.style.animationDelay = `${index * 35}ms`;
+      groupDiv.innerHTML = `
+        <span class="category-name">${category}</span>
+        <span class="category-value">${selectedOption}</span>
+      `;
       resultsDiv.appendChild(groupDiv);
+    });
+  }
+
+  function popButton(button) {
+    button.classList.remove('is-popping');
+    void button.offsetWidth;
+    button.classList.add('is-popping');
+  }
+
+  async function copyCurrentFaction() {
+    if (!currentFactionEntries.length) return;
+
+    const statusText = document.getElementById('statusText');
+    const copyBtn = document.getElementById('copyBtn');
+    const textToCopy = [
+      'Faction Generator',
+      '',
+      ...currentFactionEntries.map(({ category, value }) => `${category}: ${value}`)
+    ].join('\n');
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        const tempArea = document.createElement('textarea');
+        tempArea.value = textToCopy;
+        tempArea.setAttribute('readonly', '');
+        tempArea.style.position = 'fixed';
+        tempArea.style.left = '-9999px';
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempArea);
+      }
+
+      statusText.textContent = 'Copied to clipboard.';
+      copyBtn.textContent = 'Copied ✓';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy Faction';
+      }, 1400);
+    } catch (error) {
+      statusText.textContent = 'Copy failed. Please try again.';
     }
   }
 
-  document.getElementById('generateBtn').addEventListener('click', generateRandomFaction);
-  
-  // Generate the first one on load
+  document.getElementById('generateBtn').addEventListener('click', (event) => {
+    generateRandomFaction();
+    popButton(document.getElementById('generateBtn'));
+
+    const rect = document.querySelector('.container').getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    spawnBurst(x, y);
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    popButton(document.getElementById('copyBtn'));
+    await copyCurrentFaction();
+  });
+
   generateRandomFaction();
 </script>
 
